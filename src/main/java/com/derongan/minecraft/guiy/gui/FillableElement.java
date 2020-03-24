@@ -1,13 +1,16 @@
 package com.derongan.minecraft.guiy.gui;
 
+import java.util.List;
+import org.jetbrains.annotations.NotNull;
+
 /**
  * Element that supports having Elements added to it dynamically.
  */
-public class FillableElement implements Element {
+public class FillableElement implements Element, ListContainable, GridContainable {
     private final int height;
     private final int width;
 
-    private Element[][] elements;
+    private final Element[][] elements;
 
     // TODO make this work with fixed size
     public FillableElement(int height, int width) {
@@ -17,13 +20,14 @@ public class FillableElement implements Element {
         elements = new Element[width][height];
     }
 
+    @NotNull
     @Override
     public Size getSize() {
         return Size.create(width, height);
     }
 
     @Override
-    public void draw(GuiRenderer guiRenderer) {
+    public void draw(@NotNull GuiRenderer guiRenderer) {
         for (int x = 0; x < width; x++) {
             for (int y = 0; y < height; y++) {
                 final int xc = x;
@@ -39,7 +43,8 @@ public class FillableElement implements Element {
     /**
      * Adds an element at the next available position.
      */
-    public void addElement(Element element) {
+    @Override
+    public void addElement(@NotNull Element element) {
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
                 if (elements[x][y] == null) {
@@ -51,13 +56,22 @@ public class FillableElement implements Element {
     }
 
     /**
+     * Adds a list of element with the logic of addElement.
+     */
+    @Override
+    public void addAll(List<? extends Element> elements) {
+        elements.forEach(this::addElement);
+    }
+
+    /**
      * Adds an element at a specific position.
      *
      * @param x       The x coordinate within this element.
      * @param y       The y coordinate within this element.
      * @param element The element to add to this element.
      */
-    public void setElement(int x, int y, Element element) {
+    @Override
+    public void setElement(int x, int y, @NotNull Element element) {
         elements[x][y] = element;
     }
 
@@ -77,6 +91,7 @@ public class FillableElement implements Element {
      *
      * @param element The element to be removed.
      */
+    @Override
     public void removeElement(Element element) {
         for (int x = 0; x < width; x++) {
             for (int y = 0; y < height; y++) {
@@ -99,7 +114,6 @@ public class FillableElement implements Element {
     public boolean hasElement(int x, int y) {
         return elements[x][y] != null;
     }
-
 
     /**
      * Gets the element at a specific position, returning null if there is no element.
